@@ -31,9 +31,16 @@ import com.example.exercises.R
 import com.example.exercises.ui.theme.ExercisesTheme
 import android.view.View
 import android.os.Build
+import androidx.activity.viewModels
+import androidx.compose.runtime.collectAsState
+import com.example.exercises.dicee.DiceeViewModel
 import kotlin.random.Random
 
 class BallPage : ComponentActivity() {
+
+    // This creates a ViewModel scoped to this activity
+    private val ballViewModel: BallViewModel by viewModels()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setFullScreen()
@@ -55,37 +62,41 @@ class BallPage : ComponentActivity() {
             R.drawable.ball4,
             R.drawable.ball5
         )
-        var randomImage by remember { mutableIntStateOf((0..4).random()) }
+        val selectedBall by ballViewModel.selectedBall.collectAsState()
 
         Column(
-            modifier = modifier.fillMaxSize().background(MaterialTheme.colorScheme.primary),
+            modifier = modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.primary),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Image(
-                painter = painterResource(id = ballImages[randomImage]),
+                painter = painterResource(id = ballImages[selectedBall]),
                 contentDescription = "dice image",
-                modifier = Modifier.clickable { randomImage = (0..4).random() }
+                modifier = Modifier.clickable { ballViewModel.answer() }
             )
         }
     }
 
-    private fun setFullScreen() : Unit{
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            window.insetsController?.hide(
-                android.view.WindowInsets.Type.statusBars() or
-                        android.view.WindowInsets.Type.navigationBars()
-            )
-        } else {
-            @Suppress("DEPRECATION")
-            window.decorView.systemUiVisibility = (
-                    View.SYSTEM_UI_FLAG_FULLSCREEN or
-                            View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or
-                            View.SYSTEM_UI_FLAG_LAYOUT_STABLE or
-                            View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or
-                            View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION or
-                            View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
-                    )
+    private fun setFullScreen(): Unit {
+        window.decorView.post {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                window.insetsController?.hide(
+                    android.view.WindowInsets.Type.statusBars() or
+                            android.view.WindowInsets.Type.navigationBars()
+                )
+            } else {
+                @Suppress("DEPRECATION")
+                window.decorView.systemUiVisibility = (
+                        View.SYSTEM_UI_FLAG_FULLSCREEN or
+                                View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or
+                                View.SYSTEM_UI_FLAG_LAYOUT_STABLE or
+                                View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or
+                                View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION or
+                                View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+                        )
+            }
         }
         enableEdgeToEdge()
     }
