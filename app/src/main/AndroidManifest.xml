@@ -24,6 +24,16 @@
             android:name=".Ball.BallPage"
             android:exported="true"
             android:label="@string/app_name"
+            android:theme="@style/Theme.Exercises" />
+        <activity
+            android:name=".Micard"
+            android:exported="true"
+            android:label="@string/app_name"
+            android:theme="@style/Theme.Exercises" />
+        <activity
+            android:name=".XyloPhone.Xylophone"
+            android:exported="true"
+            android:label="@string/app_name"
             android:theme="@style/Theme.Exercises" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -31,11 +41,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity
-            android:name=".Micard"
-            android:exported="true"
-            android:label="@string/app_name"
-            android:theme="@style/Theme.Exercises" />
         <activity
             android:name=".dicee.Dicee"
             android:exported="true"
