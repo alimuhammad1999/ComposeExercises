@@ -79,7 +79,7 @@ class BallPage : ComponentActivity() {
         }
     }
 
-    private fun setFullScreen(): Unit {
+    private fun setFullScreen() {
         window.decorView.post {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                 window.insetsController?.hide(
