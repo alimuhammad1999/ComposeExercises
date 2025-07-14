@@ -11,6 +11,8 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -66,36 +68,29 @@ class Xylophone : ComponentActivity() {
         }
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        soundPool.release()
+    }
+
     @Composable
     fun XylophoneScreen(modifier: Modifier = Modifier) {
         val keyColors = listOf(
             Color.Red, Color.Magenta, Color.Yellow,
-            Color.Green, Color.Cyan, Color.Blue, Color.Magenta
+            Color.Green, Color.Cyan, Color.Blue, Color(0xFF8A2BE2) // Using Color(0xFF8A2BE2) for Indigo
         )
-
         Column(
             verticalArrangement = Arrangement.Center,
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp)
+            modifier = modifier.fillMaxSize().padding(16.dp)
         ) {
-            for (i in 0 until 7) {
+            keyColors.forEachIndexed { index, color ->
                 XylophoneKey(
-                    color = keyColors[i],
-                    onClick = {
-                        soundPool.play(soundIds[i], 1f, 1f, 0, 0, 1f)
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 4.dp)
+                    color = color,
+                    onClick = { soundPool.play(soundIds[index], 1f, 1f, 0, 0, 1f) },
+                    modifier = Modifier.fillMaxWidth().weight(1f)
                 )
             }
         }
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        soundPool.release()
     }
 
     @Composable
@@ -107,9 +102,8 @@ class Xylophone : ComponentActivity() {
         Box(
             modifier = modifier
                 .fillMaxWidth()
-                .height(50.dp) // <-- this is important
                 .background(color)
-                .clickable { onClick() }
+                .clickable { onClick() },
         )
     }
 
