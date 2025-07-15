@@ -1,6 +1,7 @@
 package com.example.exercises.XyloPhone
 
 import android.media.AudioAttributes
+import android.media.MediaPlayer
 import android.media.SoundPool
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -39,54 +40,38 @@ class Xylophone : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             ExercisesTheme {
-                Scaffold (modifier = Modifier.fillMaxSize()) { innerPadding ->
+                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     XylophoneScreen(
                         modifier = Modifier.padding(innerPadding)
                     )
                 }
             }
         }
-
-        // 1. Initialize SoundPool
-        val audioAttributes = AudioAttributes.Builder()
-            .setUsage(AudioAttributes.USAGE_ASSISTANCE_SONIFICATION)
-            .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
-            .build()
-
-        soundPool = SoundPool.Builder()
-            .setMaxStreams(7)
-            .setAudioAttributes(audioAttributes)
-            .build()
-
-        // 2. Load all 7 sounds
-        val rawIds = listOf(
-            R.raw.note1, R.raw.note2, R.raw.note3, R.raw.note4,
-            R.raw.note5, R.raw.note6, R.raw.note7
-        )
-        rawIds.forEach {
-            soundIds.add(soundPool.load(this, it, 1))
-        }
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        soundPool.release()
     }
 
     @Composable
     fun XylophoneScreen(modifier: Modifier = Modifier) {
         val keyColors = listOf(
-            Color.Red, Color.Magenta, Color.Yellow,
-            Color.Green, Color.Cyan, Color.Blue, Color(0xFF8A2BE2) // Using Color(0xFF8A2BE2) for Indigo
+            Color.Red,
+            Color.Magenta,
+            Color.Yellow,
+            Color.Green,
+            Color.Cyan,
+            Color.Blue,
+            Color(0xFF8A2BE2) // Using Color(0xFF8A2BE2) for Indigo
+        )
+        val rawIds = listOf(
+            R.raw.note1, R.raw.note2, R.raw.note3, R.raw.note4,
+            R.raw.note5, R.raw.note6, R.raw.note7
         )
         Column(
             verticalArrangement = Arrangement.Center,
-            modifier = modifier.fillMaxSize().padding(16.dp)
+            modifier = modifier.fillMaxSize()
         ) {
             keyColors.forEachIndexed { index, color ->
                 XylophoneKey(
                     color = color,
-                    onClick = { soundPool.play(soundIds[index], 1f, 1f, 0, 0, 1f) },
+                    onClick = { MediaPlayer.create(this@Xylophone, rawIds[index]).start() },
                     modifier = Modifier.fillMaxWidth().weight(1f)
                 )
             }
