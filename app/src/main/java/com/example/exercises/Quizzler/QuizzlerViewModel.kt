@@ -38,6 +38,7 @@ class QuizzlerViewModel : ViewModel() {
     )
 
     private val _index = MutableStateFlow(0)
+    val totalQuestions = _questionsAndAnswers.size
 
     private val _scoreKeeper = MutableStateFlow<List<Boolean>>(listOf())
     val scoreKeeper : StateFlow<List<Boolean>> = _scoreKeeper
@@ -49,6 +50,7 @@ class QuizzlerViewModel : ViewModel() {
     val currentQuestion : StateFlow<String> = _currentQuestion
 
     fun submitAnswer(answer: Boolean) {
+
         val isCorrect = _questionsAndAnswers.getValue(currentQuestion.value) == answer
         _scoreKeeper.value = _scoreKeeper.value.toMutableList() + isCorrect
 

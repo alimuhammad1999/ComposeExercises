@@ -73,6 +73,7 @@ class QuizzlerApp : ComponentActivity() {
         val scoreKeeper by viewModel.scoreKeeper.collectAsState()
         val question by viewModel.currentQuestion.collectAsState() // uses index internally
         val showDialog by viewModel.showDialog.collectAsState()
+        val totalQuestions = viewModel.totalQuestions
 
         Surface(
             modifier = modifier.fillMaxSize(),
@@ -96,6 +97,7 @@ class QuizzlerApp : ComponentActivity() {
                 ) {
                     Button(
                         onClick = { viewModel.submitAnswer(true) },
+                        enabled = scoreKeeper.size < totalQuestions,
                         colors = ButtonDefaults.buttonColors(containerColor = Color.Green),
                         modifier = Modifier.fillMaxWidth(0.6f)
                     ) {
@@ -107,6 +109,7 @@ class QuizzlerApp : ComponentActivity() {
                             containerColor = Color.Red,
                             contentColor = Color.White
                         ),
+                        enabled = scoreKeeper.size < totalQuestions,
                         modifier = Modifier.fillMaxWidth(0.6f)
                     ) {
                         Text(text = "False")
