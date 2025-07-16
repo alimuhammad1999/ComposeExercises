@@ -9,7 +9,7 @@ class DiceeViewModel : ViewModel() {
     val dice1: StateFlow<Int> = _dice1
 
     private val _dice2 = MutableStateFlow(0)
-    val dice2: StateFlow<Int> = _dice2
+    val dice2 = _dice2
 
     fun rollDice1() {
         _dice1.value = (0..5).random()

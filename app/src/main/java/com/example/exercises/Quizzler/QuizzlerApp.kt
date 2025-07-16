@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.viewModels
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -47,9 +48,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.TextButton
+import androidx.compose.runtime.collectAsState
 import com.example.exercises.ui.theme.ExercisesTheme
 
 class QuizzlerApp : ComponentActivity() {
+
+    private val quizzlerViewModel : QuizzlerViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -57,42 +61,18 @@ class QuizzlerApp : ComponentActivity() {
         setContent {
             ExercisesTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    QuizzlerScreen(modifier = Modifier.padding(innerPadding))
+                    QuizzlerScreen(modifier = Modifier.padding(innerPadding), quizzlerViewModel)
                 }
             }
         }
     }
 
     @Composable
-    fun QuizzlerScreen(modifier: Modifier = Modifier) {
-        val _questionsAndAnswers = mapOf(
-            "You can lead a cow down stairs but not up stairs." to false,
-            "Approximately one quarter of human bones are in the feet." to true,
-            "A slug's blood is green." to true,
-           "Some cats are actually allergic to humans" to true,
-           "You can lead a cow down stairs but not up stairs." to false,
-           "Buzz Aldrin\'s mother\'s maiden name was \"Moon\"." to true,
-           "It is illegal to pee in the Ocean in Portugal." to true,
-            "No piece of square dry paper can be folded in half more than 7 times." to false,
-            "In London, UK, if you happen to die in the House of Parliament, you are technically entitled to a state funeral, because the building is considered too sacred a place."
-                    to true,
-            "The loudest sound produced by any animal is 188 decibels. That animal is the African Elephant" to false,
-            "The total surface area of two human lungs is approximately 70 square metres." to true,
-            "Google was originally called \"Backrub\"." to true,
-            "Chocolate affects a dog\'s heart and nervous system; a few ounces are enough to kill a small dog." to true,
-            "In West Virginia, USA, if you accidentally hit an animal with your car, you are free to take it home to eat." to true
-        )
-        var _index by remember { mutableIntStateOf(0) }
-        val _scoreKeeper = remember { mutableStateListOf<Boolean>() }
-        val question = _questionsAndAnswers.keys.toList()[_index];
-        var showDialog by remember { mutableStateOf(false) } // State for dialog visibility
+    fun QuizzlerScreen(modifier: Modifier = Modifier, viewModel: QuizzlerViewModel) {
 
-        fun processAnswer(isCorrect: Boolean) {
-            _scoreKeeper.add(isCorrect)
-            if (_index < _questionsAndAnswers.size - 1) _index++
-            else showDialog = true
-
-        }
+        val scoreKeeper by viewModel.scoreKeeper.collectAsState()
+        val question by viewModel.currentQuestion.collectAsState() // uses index internally
+        val showDialog by viewModel.showDialog.collectAsState()
 
         Surface(
             modifier = modifier.fillMaxSize(),
@@ -115,22 +95,14 @@ class QuizzlerApp : ComponentActivity() {
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Button(
-                        onClick = {
-                            val answer = _questionsAndAnswers.getValue(question)
-                            processAnswer(answer == true)
-                        },
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = Color.Green
-                        ),
+                        onClick = { viewModel.submitAnswer(true) },
+                        colors = ButtonDefaults.buttonColors(containerColor = Color.Green),
                         modifier = Modifier.fillMaxWidth(0.6f)
                     ) {
                         Text(text = "True")
                     }
                     Button(
-                        onClick = {
-                            val answer = _questionsAndAnswers.getValue(question)
-                            processAnswer(answer == false)
-                        },
+                        onClick = { viewModel.submitAnswer(false) },
                         colors = ButtonDefaults.buttonColors(
                             containerColor = Color.Red,
                             contentColor = Color.White
@@ -144,14 +116,14 @@ class QuizzlerApp : ComponentActivity() {
                             .padding(top = 24.dp)
                             .horizontalScroll(rememberScrollState())
                     ) {
-                        if (_scoreKeeper.isEmpty()) {
+                        if (scoreKeeper.isEmpty()) {
                             Text(
                                 text = "Your score will appear here",
                                 modifier = Modifier.padding(all = 8.dp), // Add some padding to the placeholder
                                 color = Color.White // Or your desired placeholder color
                             )
                         } else {
-                            _scoreKeeper.forEach { answerCorrect ->
+                            scoreKeeper.forEach { answerCorrect ->
                                 Icon(
                                     imageVector = if (answerCorrect) Icons.Default.Check else Icons.Default.Close,
                                     contentDescription = if (answerCorrect) "Correct" else "Incorrect",
@@ -164,18 +136,12 @@ class QuizzlerApp : ComponentActivity() {
                 }
             }
             if (showDialog) {
-                val correctAnswersCount = _scoreKeeper.count { it } // Counts true values
+                val correctAnswersCount = scoreKeeper.count { it } // Counts true values
                 AlertDialog(
                     title = { Text(text = "Quiz Completed!") },
-                    text = { Text(text = "You got $correctAnswersCount out of ${_scoreKeeper.size} correct.") },
+                    text = { Text(text = "You got $correctAnswersCount out of ${scoreKeeper.size} correct.") },
                     confirmButton = {
-                        TextButton(
-                            onClick = {
-                                showDialog = false
-                                _index = 0
-                                _scoreKeeper.clear()
-                            }
-                        ) { Text("Okay") }
+                        TextButton( onClick = { viewModel.resetQuiz() } ) { Text("Okay") }
                     },
                     dismissButton = null,
                     onDismissRequest = {
@@ -189,7 +155,7 @@ class QuizzlerApp : ComponentActivity() {
     @Composable
     fun GreetingPreview() {
         ExercisesTheme {
-            QuizzlerScreen()
+            QuizzlerScreen(Modifier, quizzlerViewModel)
         }
     }
 }
