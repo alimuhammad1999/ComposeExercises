@@ -41,7 +41,17 @@
             android:label="@string/app_name"
             android:theme="@style/Theme.Exercises" />
         <activity
+            android:name=".destini.Destini"
+            android:exported="true"
+            android:label="@string/app_name"
+            android:theme="@style/Theme.Exercises" />
+        <activity
             android:name=".Quizzler.QuizzlerApp"
+            android:exported="true"
+            android:label="@string/app_name"
+            android:theme="@style/Theme.Exercises" />
+        <activity
+            android:name=".BMI.BMI"
             android:exported="true"
             android:label="@string/app_name"
             android:theme="@style/Theme.Exercises" >
