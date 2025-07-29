@@ -17,20 +17,30 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Slider
+import androidx.compose.material3.SliderDefaults
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -86,7 +96,8 @@ class BMI : ComponentActivity() {
     fun BmiCalculator(modifier: Modifier = Modifier) {
         Column(
             modifier = modifier
-                .fillMaxSize().padding(16.dp)
+                .fillMaxSize()
+                .padding(16.dp)
                 .background(color = Color(0xFF0A0E21)),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
@@ -111,11 +122,12 @@ class BMI : ComponentActivity() {
                         painter = painterResource(id = R.drawable.ic_male),
                         contentDescription = "Man fuck you",
                         tint = Color.White,             // Important!
-                        modifier = Modifier.size(144.dp)) // Set a visible size)
+                        modifier = Modifier.size(144.dp)
+                    ) // Set a visible size)
 
-                                Spacer (modifier = Modifier.padding(20.dp))
+                    Spacer(modifier = Modifier.padding(20.dp))
 
-                                Text ("Male", color = Color.White)
+                    Text("Male", color = Color.White)
 
                 }
 
@@ -134,100 +146,165 @@ class BMI : ComponentActivity() {
                         painter = painterResource(id = R.drawable.ic_female),
                         contentDescription = "Man fuck you",
                         tint = Color.White,             // Important!
-                        modifier = Modifier.size(144.dp)) // Set a visible size)
+                        modifier = Modifier.size(144.dp)
+                    ) // Set a visible size)
 
-                    Spacer (modifier = Modifier.padding(20.dp))
+                    Spacer(modifier = Modifier.padding(20.dp))
 
-                    Text ("Female", color = Color.White)
+                    Text("Female", color = Color.White)
                 }
             }
-            Box(modifier = Modifier.fillMaxWidth().weight(1f).background(Color(0xFF111320), shape = RoundedCornerShape(10.dp)))
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
+                    .background(Color(0xFF111320), shape = RoundedCornerShape(10.dp)),
+                contentAlignment = Alignment.Center
+            ) {
+                var height by remember { mutableFloatStateOf(180f) }
+
+                Column (verticalArrangement = Arrangement.SpaceEvenly, horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text(
+                        "Height: ${height.toInt()} cm",
+                        style = MaterialTheme.typography.titleMedium,
+                        color = Color.White
+                    )
+                    HeightSlider(height, onHeightChange = { height = it })
+                }
+            }
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .weight(1f),
                 horizontalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxHeight()
-                        .weight(1f)
-                        .background(
-                            Color(0xFF111320),
-                            shape = RoundedCornerShape(10.dp)
-                        ),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.SpaceEvenly
-                ) {
-                    Text("Weight", color = Color.White)
 
-                    Text("70",
-                        style = TextStyle(
-                        fontWeight = FontWeight.ExtraBold,
-                        fontSize = 100.sp, color = Color.White
-                    ))
+                var age by remember { mutableIntStateOf(25) }
+                var weight by remember { mutableIntStateOf(60) }
 
-                    Row (
-                        modifier = Modifier.fillMaxWidth(0.7f),
-                        horizontalArrangement = Arrangement.SpaceEvenly
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.KeyboardArrowUp,
-                            contentDescription = "Add",
-                            modifier = Modifier
-                                .size(56.dp)
-                                .background(
-                                    color = Color(0xFF4C4F5E).copy(alpha = 0.8f),
-                                    shape = CircleShape
-                                )
-                                .clickable {
-                                    // your onClick action
-                                }
-                                .padding(16.dp), // inner padding inside circle
-                            tint = Color.White
-                        )
-                        Icon(
-                            imageVector = Icons.Default.KeyboardArrowDown,
-                            contentDescription = "Add",
-                            modifier = Modifier
-                                .size(56.dp)
-                                .background(
-                                    color = Color(0xFF4C4F5E).copy(alpha = 0.8f),
-                                    shape = CircleShape
-                                )
-                                .clip(CircleShape)
-                                .clickable {
-                                    // your onClick action
-                                }
-                                .padding(16.dp), // inner padding inside circle
-                            tint = Color.White
-                        )
-                        RoundButton(icon = Icons.Default.KeyboardArrowDown)
-                    }
+                RoundSelectorCard(
+                    label = "AGE",
+                    value = age,
+                    onIncrement = { age++ },
+                    onDecrement = { if (age > 1) age-- },
+                    modifier = Modifier.weight(1f)
+                )
 
-                }
+                Spacer(modifier = Modifier.width(16.dp))
 
-                Column(
-                    modifier = Modifier
-                        .fillMaxHeight()
-                        .background(
-                            Color(0xFF1D1E33),
-                            shape = RoundedCornerShape(10.dp)
-                        )
-                        .weight(1f),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.SpaceEvenly
-                ) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.ic_female),
-                        contentDescription = "Man fuck you",
-                        tint = Color.White,             // Important!
-                        modifier = Modifier.size(144.dp)) // Set a visible size)
+                RoundSelectorCard(
+                    label = "WEIGHT",
+                    value = weight,
+                    onIncrement = { weight++ },
+                    onDecrement = { if (weight > 1) weight-- },
+                    modifier = Modifier.weight(1f)
+                )
+            }
+        }
+    }
 
-                    Spacer (modifier = Modifier.padding(20.dp))
+    @Composable
+    fun HeightSlider(
+        height: Float,
+        onHeightChange: (Float) -> Unit,
+        modifier: Modifier = Modifier,
+        min: Float = 120f,
+        max: Float = 240f,
+        trackColor: Color = Color.Gray,
+        activeTrackColor: Color = Color.White,
+        thumbColor: Color = Color(0xFFEB1555),
+        overlayColor: Color = Color(0x29EB1555) // Similar overlay effect
+    ) {
+        Slider(
+            value = height,
+            onValueChange = onHeightChange,
+            valueRange = min..max,
+            modifier = modifier.padding(horizontal = 16.dp),
+            colors = SliderDefaults.colors(
+                thumbColor = thumbColor,
+                activeTrackColor = activeTrackColor,
+                inactiveTrackColor = trackColor,
+                activeTickColor = Color.Transparent,
+                inactiveTickColor = Color.Transparent,
+                disabledActiveTrackColor = Color.LightGray,
+                disabledThumbColor = Color.Gray
+            )
+        )
+    }
 
-                    Text ("Female", color = Color.White)
-                }
+    @Composable
+    fun RoundSelectorCard(
+        label: String,
+        value: Int,
+        onIncrement: () -> Unit,
+        onDecrement: () -> Unit,
+        modifier: Modifier = Modifier
+    ) {
+        Column(
+            modifier = modifier
+                .fillMaxHeight()
+                .clip(RoundedCornerShape(10.dp))
+                .background(Color(0xFF111320))
+                .padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.SpaceEvenly
+        ) {
+            Text(
+                text = label,
+                color = Color.Gray,
+                fontSize = 18.sp
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = "$value",
+                fontWeight = FontWeight.ExtraBold,
+                fontSize = 72.sp, color = Color.White
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Row {
+                RoundIconButton(
+                    icon = Icons.Default.KeyboardArrowDown,
+                    onClick = onDecrement
+                )
+                Spacer(modifier = Modifier.width(12.dp))
+                RoundIconButton(
+                    icon = Icons.Default.KeyboardArrowUp,
+                    onClick = onIncrement
+                )
+            }
+        }
+    }
+
+    @Composable
+    fun RoundIconButton(
+        icon: ImageVector,
+        contentDescription: String? = null,
+        backgroundColor: Color = Color(0xFF4C4F5E).copy(alpha = 0.8f),
+        iconTint: Color = Color.White,
+        size: Dp = 42.dp,
+        onClick: (() -> Unit)? = null
+    ) {
+        val haptic = LocalHapticFeedback.current
+
+        Surface(
+            shape = CircleShape,
+            color = backgroundColor,
+            modifier = Modifier.size(size),
+            tonalElevation = 4.dp // Optional shadow-like effect
+        ) {
+            IconButton(
+                onClick = {
+                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                    onClick?.invoke()
+                },
+                modifier = Modifier.fillMaxSize()
+            ) {
+                Icon(
+                    imageVector = icon,
+                    contentDescription = contentDescription,
+                    tint = iconTint,
+                    modifier = Modifier.size(size / 2) // Adjust icon size proportionally
+                )
             }
         }
     }
@@ -279,5 +356,4 @@ class BMI : ComponentActivity() {
             )
         }
     }
-
 }
