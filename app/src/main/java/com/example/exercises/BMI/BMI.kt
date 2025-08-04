@@ -12,6 +12,7 @@ import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -24,9 +25,10 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -38,6 +40,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
@@ -54,7 +57,6 @@ import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -68,6 +70,8 @@ class BMI : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
+            val viewModel : BMIViewModel = BMIViewModel()
+
             ExercisesTheme {
                 Scaffold(
                     modifier = Modifier.fillMaxSize(),
@@ -81,7 +85,8 @@ class BMI : ComponentActivity() {
                         modifier = Modifier
                             .fillMaxSize()
                             .padding(padding)
-                            .background(color = Color(0xFF0A0E21))
+                            .background(color = Color(0xFF0A0E21)),
+                        viewModel
                     )
                 }
             }
@@ -93,7 +98,7 @@ class BMI : ComponentActivity() {
 //    const kBottomContainerColour = Color(0xFFEB1555);
 
     @Composable
-    fun BmiCalculator(modifier: Modifier = Modifier) {
+    fun BmiCalculator(modifier: Modifier = Modifier, viewModel: BMIViewModel) {
         Column(
             modifier = modifier
                 .fillMaxSize()
@@ -101,66 +106,47 @@ class BMI : ComponentActivity() {
                 .background(color = Color(0xFF0A0E21)),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
+
+            val height by viewModel.height.collectAsState()
+            val weight by viewModel.weight.collectAsState()
+            val age by viewModel.age.collectAsState()
+            val male by viewModel.male.collectAsState()
+
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .weight(1f),
                 horizontalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxHeight()
-                        .background(
-                            Color(0xFF111320),
-                            shape = RoundedCornerShape(10.dp)
-                        )
-                        .weight(1f),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.SpaceEvenly
+
+                BackgroundCard(
+                    modifier = Modifier.weight(1f).clickable { viewModel.setMale(true)  },
+                    backgroundColor = if (male) Color(0xFF101633) else Color(0xFF111320)
                 ) {
                     Icon(
                         painter = painterResource(id = R.drawable.ic_male),
-                        contentDescription = "Man fuck you",
+                        contentDescription = "Male Icon",
                         tint = Color.White,             // Important!
                         modifier = Modifier.size(144.dp)
-                    ) // Set a visible size)
-
+                    )
                     Spacer(modifier = Modifier.padding(20.dp))
-
                     Text("Male", color = Color.White)
-
                 }
-                Column(
-                    modifier = Modifier
-                        .fillMaxHeight()
-                        .background(
-                            Color(0xFF1D1E33),
-                            shape = RoundedCornerShape(10.dp)
-                        )
-                        .weight(1f),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.SpaceEvenly
+                BackgroundCard(
+                    modifier = Modifier.weight(1f).clickable { viewModel.setMale(false) },
+                    backgroundColor = if (!male) Color(0xFF101633) else Color(0xFF111320)
                 ) {
                     Icon(
                         painter = painterResource(id = R.drawable.ic_female),
-                        contentDescription = "Man fuck you",
+                        contentDescription = "Female Icon",
                         tint = Color.White,             // Important!
                         modifier = Modifier.size(144.dp)
-                    ) // Set a visible size)
-
+                    )
                     Spacer(modifier = Modifier.padding(20.dp))
-
                     Text("Female", color = Color.White)
                 }
             }
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(1f)
-                    .background(Color(0xFF111320), shape = RoundedCornerShape(10.dp)),
-                contentAlignment = Alignment.Center
-            ) {
-                var height by remember { mutableFloatStateOf(180f) }
+            BackgroundCard(modifier = Modifier.weight(1f)) {
 
                 Column(
                     verticalArrangement = Arrangement.SpaceEvenly,
@@ -171,7 +157,7 @@ class BMI : ComponentActivity() {
                         style = MaterialTheme.typography.titleMedium,
                         color = Color.White
                     )
-                    HeightSlider(height, onHeightChange = { height = it })
+                    HeightSlider(height, onHeightChange = { viewModel.setHeight(it) })
                 }
             }
             Row(
@@ -181,26 +167,72 @@ class BMI : ComponentActivity() {
                 horizontalArrangement = Arrangement.spacedBy(16.dp)
             ) {
 
-                var age by remember { mutableIntStateOf(25) }
-                var weight by remember { mutableIntStateOf(60) }
-
                 RoundSelectorCard(
                     label = "AGE",
                     value = age,
-                    onIncrement = { age++ },
-                    onDecrement = { if (age > 1) age-- },
+                    onIncrement = { viewModel.setAge(+1) },
+                    onDecrement = { if (age > 1) viewModel.setAge(-1) },
                     modifier = Modifier.weight(1f)
                 )
 
                 RoundSelectorCard(
                     label = "WEIGHT",
                     value = weight,
-                    onIncrement = { weight++ },
-                    onDecrement = { if (weight > 1) weight-- },
+                    onIncrement = { viewModel.setWeight(+1) },
+                    onDecrement = { if (weight > 1) viewModel.setWeight(-1) },
                     modifier = Modifier.weight(1f)
                 )
             }
+
+            CustomButton(
+                title = "Calculate",
+                onTap = {viewModel.calculateBMI()}
+            )
         }
+    }
+
+    @Composable
+    fun CustomButton(
+        title : String,
+        onTap : () -> Unit
+    ) {
+        Button(
+            onClick = onTap,
+            colors = ButtonColors(
+                containerColor = Color(0xFFEB1555),
+                contentColor = Color.Black,
+                disabledContentColor = Color.Gray,
+                disabledContainerColor = Color.Blue
+            ),
+            modifier = Modifier.fillMaxWidth().height(80.dp),
+        ) {
+            Text(
+                text = title,
+                fontSize = 25.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color.Black
+            )
+        }
+    }
+
+    @Composable
+    fun BackgroundCard(
+        modifier: Modifier = Modifier,
+        backgroundColor: Color = Color(0xFF111320),
+        horizontalAlignment: Alignment.Horizontal = Alignment.CenterHorizontally,
+        verticalArrangement: Arrangement.Vertical = Arrangement.SpaceEvenly,
+        content: @Composable ColumnScope.() -> Unit
+    ) {
+        Column(
+            modifier = modifier
+                .fillMaxHeight()
+                .background(
+                    backgroundColor,
+                    shape = RoundedCornerShape(10.dp)
+                ),
+            horizontalAlignment = horizontalAlignment,
+            verticalArrangement = verticalArrangement
+        ) { content() }
     }
 
     @Composable
@@ -259,15 +291,7 @@ class BMI : ComponentActivity() {
         onDecrement: () -> Unit,
         modifier: Modifier = Modifier
     ) {
-        Column(
-            modifier = modifier
-                .fillMaxHeight()
-                .clip(RoundedCornerShape(10.dp))
-                .background(Color(0xFF111320))
-                .padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.SpaceEvenly
-        ) {
+        BackgroundCard(modifier = modifier) {
             Text(
                 text = label,
                 color = Color.Gray,
