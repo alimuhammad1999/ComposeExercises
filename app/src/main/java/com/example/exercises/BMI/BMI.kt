@@ -130,7 +130,6 @@ class BMI : ComponentActivity() {
                     Text("Male", color = Color.White)
 
                 }
-
                 Column(
                     modifier = Modifier
                         .fillMaxHeight()
@@ -163,7 +162,10 @@ class BMI : ComponentActivity() {
             ) {
                 var height by remember { mutableFloatStateOf(180f) }
 
-                Column (verticalArrangement = Arrangement.SpaceEvenly, horizontalAlignment = Alignment.CenterHorizontally) {
+                Column(
+                    verticalArrangement = Arrangement.SpaceEvenly,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
                     Text(
                         "Height: ${height.toInt()} cm",
                         style = MaterialTheme.typography.titleMedium,
@@ -189,8 +191,6 @@ class BMI : ComponentActivity() {
                     onDecrement = { if (age > 1) age-- },
                     modifier = Modifier.weight(1f)
                 )
-
-                Spacer(modifier = Modifier.width(16.dp))
 
                 RoundSelectorCard(
                     label = "WEIGHT",
@@ -223,7 +223,7 @@ class BMI : ComponentActivity() {
             colors = SliderDefaults.colors(
                 thumbColor = thumbColor,
                 activeTrackColor = activeTrackColor,
-                inactiveTrackColor = trackColor,
+                inactiveTrackColor = overlayColor,
                 activeTickColor = Color.Transparent,
                 inactiveTickColor = Color.Transparent,
                 disabledActiveTrackColor = Color.LightGray,
@@ -231,6 +231,25 @@ class BMI : ComponentActivity() {
             )
         )
     }
+
+    /*@Composable
+    fun HeightSlider(
+        value: Float,
+        onHeightChange: (Float) -> Unit,
+        modifier: Modifier = Modifier,
+    ) {
+        Slider(
+            value = value,
+            onValueChange = onHeightChange,
+            valueRange = 120f..240f,
+            modifier = modifier.padding(horizontal = 16.dp),
+            colors = SliderDefaults.colors(
+                thumbColor = Color(0xFFEB1555),
+                activeTrackColor = Color.White,
+                inactiveTrackColor = Color.Gray
+            )
+        )
+    }*/
 
     @Composable
     fun RoundSelectorCard(
