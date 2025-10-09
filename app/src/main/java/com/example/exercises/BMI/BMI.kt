@@ -25,6 +25,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material3.Button
@@ -39,11 +40,10 @@ import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -57,48 +57,96 @@ import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
 import com.example.exercises.R
 import com.example.exercises.ui.theme.ExercisesTheme
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.compose.rememberNavController
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun BMIAppBar(
+    currentScreen: BMI.BMIScreens,
+    canNavigateBack: Boolean,
+    navigateUp: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    TopAppBar(
+        title = { Text(currentScreen.title) },
+        colors = TopAppBarDefaults.mediumTopAppBarColors(
+            containerColor = MaterialTheme.colorScheme.primaryContainer
+        ),
+        modifier = modifier,
+        navigationIcon = {
+            if (canNavigateBack) {
+                IconButton(onClick = navigateUp) {
+                    Icon(
+                        imageVector = Icons.Filled.ArrowBack,
+                        contentDescription = "Back"
+                    )
+                }
+            }
+        }
+    )
+}
 
 class BMI : ComponentActivity() {
     @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        val viewModel : BMIViewModel = BMIViewModel()
         setContent {
-            val viewModel : BMIViewModel = BMIViewModel()
-
+            val navController: NavHostController = rememberNavController()
+            val backStackEntry by navController.currentBackStackEntryAsState()
+            val currentScreen = BMIScreens.valueOf(backStackEntry?.destination?.route ?: BMIScreens.Readings.name)
             ExercisesTheme {
                 Scaffold(
-                    modifier = Modifier.fillMaxSize(),
-                    topBar = {
-                        TopAppBar(
-                            title = { Text("BMI Calculator") },
-                        )
-                    },
+//                    modifier = Modifier.fillMaxSize(),
+                    topBar = { BMIAppBar(
+                        currentScreen,
+                        canNavigateBack = navController.previousBackStackEntry != null,
+                        navigateUp = { navController.navigateUp() }) /*{
+                        TopAppBar(title = { Text("BMI Calculator") })
+                    }*/},
                 ) { padding ->
-                    BmiCalculator(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(padding)
-                            .background(color = Color(0xFF0A0E21)),
-                        viewModel
-                    )
+                    NavHost(
+                        navController = navController,
+                        startDestination = BMIScreens.Readings.name,
+                        modifier = Modifier.fillMaxSize().padding(padding).background(color = Color(0xFF0A0E21))
+                    ) {
+                        composable(route = BMIScreens.Readings.name) {
+                            BmiCalculator(
+                                modifier = Modifier,
+                                viewModel,
+                                onNext = {
+                                    navController.navigate(BMIScreens.Result.name)
+                                }
+                            )
+                        }
+                        composable(route = BMIScreens.Result.name) {
+                            ResultScreen(modifier = Modifier, viewModel = viewModel, navigateBack = {navController.navigateUp()} )
+                        }
+                    }
                 }
             }
         }
     }
 
-//    const kActiveCardColour = Color(0xFF101633);
-//    const kInactiveCardColour = Color(0xFF111320);
-//    const kBottomContainerColour = Color(0xFFEB1555);
+    enum class BMIScreens(val title: String) {
+        Readings("Readings"),
+        Result("Result")
+    }
 
     @Composable
-    fun BmiCalculator(modifier: Modifier = Modifier, viewModel: BMIViewModel) {
+    fun BmiCalculator(modifier: Modifier = Modifier, viewModel: BMIViewModel, onNext: () -> Unit) {
         Column(
             modifier = modifier
                 .fillMaxSize()
@@ -186,7 +234,7 @@ class BMI : ComponentActivity() {
 
             CustomButton(
                 title = "Calculate",
-                onTap = {viewModel.calculateBMI()}
+                onTap = onNext
             )
         }
     }

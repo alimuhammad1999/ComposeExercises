@@ -33,24 +33,18 @@ class BMIViewModel : ViewModel() {
         _age.value += int
     }
 
-    fun calculateBMI() {
+    fun calculateBMI() : Float {
         val heightInMeters = height.value / 100f
         val bmi = weight.value / (heightInMeters * heightInMeters)
-//        return bmi
+        return bmi
     }
 
-    class BMICalculator(val height: Int, val weight: Float) {
-        fun calculateBMI(): Float {
-            return weight / ((height / 100f) * (height / 100f))
-        }
-
-        fun getResult(): String {
-            val bmi = calculateBMI()
-            return when {
-                bmi >= 25 -> "Overweight"
-                bmi > 18.5 -> "Normal"
-                else -> "Underweight"
-            }
+    fun getInterpretation(): String {
+        val bmi = calculateBMI()
+        return when {
+            bmi >= 25 -> "Overweight"
+            bmi > 18.5 -> "Normal"
+            else -> "Underweight"
         }
     }
 
