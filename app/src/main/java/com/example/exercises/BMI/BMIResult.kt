@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -52,6 +53,7 @@ fun ResultScreen(modifier: Modifier = Modifier, viewModel: BMIViewModel, navigat
                     .align(Alignment.Start)
                     .padding(bottom = 8.dp)
                     .weight(1f),
+                color = Color.White,
                 style = Typography.titleLarge
             )
 
@@ -60,7 +62,7 @@ fun ResultScreen(modifier: Modifier = Modifier, viewModel: BMIViewModel, navigat
                 modifier = Modifier
                     .fillMaxWidth()
                     .weight(5f),
-//                            colors = CardDefaults.cardColors(containerColor = kActiveCardColour),
+                colors = CardDefaults.cardColors(containerColor = Color(0xFF101633)),
                 shape = RoundedCornerShape(16.dp),
                 elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
             ) {
@@ -71,10 +73,11 @@ fun ResultScreen(modifier: Modifier = Modifier, viewModel: BMIViewModel, navigat
                     verticalArrangement = Arrangement.SpaceEvenly,
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Text("Score:")//, style = kResultTextStyle)
+                    Text("Score:", color = Color.White)//, style = kResultTextStyle)
                     Text(viewModel.calculateBMI().toString(), style = kBMITextStyle)
                     Text(
                         viewModel.getInterpretation(),
+                        color = Color.White,
 //                                    style = kBodyTextStyle,
                         textAlign = TextAlign.Center
                     )
@@ -86,7 +89,13 @@ fun ResultScreen(modifier: Modifier = Modifier, viewModel: BMIViewModel, navigat
                 onClick = navigateBack, //onRecalculate,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(vertical = 16.dp)
+                    .padding(vertical = 16.dp),
+                colors = ButtonColors(
+                    containerColor = Color(0xFFEB1555),
+                    contentColor = Color.Black,
+                    disabledContainerColor = Color.Gray,
+                    disabledContentColor = Color.Gray
+                )
             ) {
                 Text("Re-Calculate")
             }

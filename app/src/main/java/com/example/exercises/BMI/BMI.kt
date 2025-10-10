@@ -1,5 +1,6 @@
 package com.example.exercises.BMI
 
+import android.R.attr.delay
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -42,6 +43,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -69,6 +71,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.time.delay
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -256,7 +260,7 @@ class BMI : ComponentActivity() {
                 disabledContentColor = Color.Gray,
                 disabledContainerColor = Color.Blue
             ),
-            modifier = Modifier.fillMaxWidth().height(80.dp),
+            modifier = Modifier.fillMaxWidth(),
         ) {
             Text(
                 text = title,
@@ -359,16 +363,19 @@ class BMI : ComponentActivity() {
             Row {
                 RoundIconButton(
                     icon = Icons.Default.KeyboardArrowDown,
-                    onClick = onDecrement
+                    onClick = onDecrement,
+                    onLongPress = onDecrement
                 )
                 Spacer(modifier = Modifier.width(12.dp))
                 RoundIconButton(
                     icon = Icons.Default.KeyboardArrowUp,
-                    onClick = onIncrement
+                    onClick = onIncrement,
+                    onLongPress = onIncrement
                 )
             }
         }
     }
+
 
     @Composable
     fun RoundIconButton(
@@ -377,32 +384,63 @@ class BMI : ComponentActivity() {
         backgroundColor: Color = Color(0xFF4C4F5E).copy(alpha = 0.8f),
         iconTint: Color = Color.White,
         size: Dp = 42.dp,
-        onClick: (() -> Unit)? = null
+        onClick: (() -> Unit)? = null,
+        onLongPress: (() -> Unit)? = null // 👈 new param for continuous press
     ) {
         val haptic = LocalHapticFeedback.current
+        val isPressed = remember { mutableStateOf(false) }
+
+        LaunchedEffect(isPressed.value) {
+            if (isPressed.value) {
+                haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                var delayMs = 1700L    // starting delay
+                while (isPressed.value) {
+                    onLongPress?.invoke()
+                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                    delay(120) //
+                    if (delayMs > 100L) delayMs -= 50L
+                }
+            }
+        }
 
         Surface(
             shape = CircleShape,
             color = backgroundColor,
-            modifier = Modifier.size(size),
-            tonalElevation = 4.dp // Optional shadow-like effect
-        ) {
-            IconButton(
-                onClick = {
-                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                    onClick?.invoke()
+            modifier = Modifier
+                .size(size)
+                .pointerInput(Unit) {
+                    detectTapGestures(
+                        onLongPress = {
+                            isPressed.value = true
+//                            tryAwaitRelease() // waits until user releases
+//                            isPressed.value = false
+                        },
+                        onPress = {
+                            tryAwaitRelease()
+                            if(isPressed.value) {
+                                isPressed.value = false
+//                                onLongPress?.invoke()
+                            }
+                        },
+                        onTap = {
+                            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                            onClick?.invoke()
+                        }
+                    )
                 },
-                modifier = Modifier.fillMaxSize()
-            ) {
+            tonalElevation = 4.dp
+        ) {
+            Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
                 Icon(
                     imageVector = icon,
                     contentDescription = contentDescription,
                     tint = iconTint,
-                    modifier = Modifier.size(size / 2) // Adjust icon size proportionally
+                    modifier = Modifier.size(size / 2)
                 )
             }
         }
     }
+
 
     @Composable
     fun RoundButton(
@@ -452,3 +490,35 @@ class BMI : ComponentActivity() {
         }
     }
 }
+/*@Composable
+    fun RoundIconButton(
+        icon: ImageVector,
+        contentDescription: String? = null,
+        backgroundColor: Color = Color(0xFF4C4F5E).copy(alpha = 0.8f),
+        iconTint: Color = Color.White,
+        size: Dp = 42.dp,
+        onClick: (() -> Unit)? = null
+    ) {
+        val haptic = LocalHapticFeedback.current
+        Surface(
+            shape = CircleShape,
+            color = backgroundColor,
+            modifier = Modifier.size(size),
+            tonalElevation = 4.dp // Optional shadow-like effect
+        ) {
+            IconButton(
+                onClick = {
+                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                    onClick?.invoke()
+                },
+                modifier = Modifier.fillMaxSize()
+            ) {
+                Icon(
+                    imageVector = icon,
+                    contentDescription = contentDescription,
+                    tint = iconTint,
+                    modifier = Modifier.size(size / 2) // Adjust icon size proportionally
+                )
+            }
+        }
+    }*/
