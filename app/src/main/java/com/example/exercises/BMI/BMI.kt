@@ -78,30 +78,33 @@ fun BMIAppBar(
     navigateUp: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    TopAppBar(
-        title = { Text(currentScreen.title) },
-        colors = TopAppBarDefaults.mediumTopAppBarColors(
-            containerColor = MaterialTheme.colorScheme.primaryContainer
-        ),
-        modifier = modifier,
-        navigationIcon = {
-            if (canNavigateBack) {
-                IconButton(onClick = navigateUp) {
-                    Icon(
-                        imageVector = Icons.Filled.ArrowBack,
-                        contentDescription = "Back"
-                    )
+    Surface (shadowElevation = 6.dp) {
+        TopAppBar(
+            title = { Text(currentScreen.title, color = Color.White) },
+            colors = TopAppBarDefaults.mediumTopAppBarColors(
+                containerColor = Color(0xFF1F2436)//Color(0xFF0A0E21)//MaterialTheme.colorScheme.primaryContainer
+            ),
+            modifier = modifier,
+            navigationIcon = {
+                if (canNavigateBack) {
+                    IconButton(onClick = navigateUp) {
+                        Icon(
+                            imageVector = Icons.Filled.ArrowBack,
+                            contentDescription = "Back",
+                            tint = Color.White
+                        )
+                    }
                 }
             }
-        }
-    )
+        )
+    }
 }
 
 class BMI : ComponentActivity() {
     @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
+//        enableEdgeToEdge()
         val viewModel : BMIViewModel = BMIViewModel()
         setContent {
             val navController: NavHostController = rememberNavController()
@@ -110,6 +113,7 @@ class BMI : ComponentActivity() {
             ExercisesTheme {
                 Scaffold(
 //                    modifier = Modifier.fillMaxSize(),
+
                     topBar = { BMIAppBar(
                         currentScreen,
                         canNavigateBack = navController.previousBackStackEntry != null,
@@ -290,7 +294,7 @@ class BMI : ComponentActivity() {
         modifier: Modifier = Modifier,
         min: Float = 120f,
         max: Float = 240f,
-        trackColor: Color = Color.Gray,
+//        trackColor: Color = Color.Gray,
         activeTrackColor: Color = Color.White,
         thumbColor: Color = Color(0xFFEB1555),
         overlayColor: Color = Color(0x29EB1555) // Similar overlay effect
