@@ -154,7 +154,9 @@ class BMI : ComponentActivity() {
     }
 
     @Composable
-    fun BmiCalculator(modifier: Modifier = Modifier, viewModel: BMIViewModel, onNext: () -> Unit) {
+    fun BmiCalculator(modifier: Modifier = Modifier,
+                      viewModel: BMIViewModel, onNext: () -> Unit
+    ) {
         Column(
             modifier = modifier
                 .fillMaxSize()
