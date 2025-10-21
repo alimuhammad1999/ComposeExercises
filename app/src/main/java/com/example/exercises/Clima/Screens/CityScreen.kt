@@ -1,4 +1,4 @@
-package com.example.exercises.Clima
+package com.example.exercises.Clima.Screens
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -29,9 +29,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.example.exercises.BMI.BMI
-import com.example.exercises.BMI.BMI.BMIScreens
-import com.example.exercises.BMI.BMIAppBar
+import com.example.exercises.Clima.WeatherViewModel
 import com.example.exercises.ui.theme.ExercisesTheme
 
 @OptIn(ExperimentalMaterial3Api::class)

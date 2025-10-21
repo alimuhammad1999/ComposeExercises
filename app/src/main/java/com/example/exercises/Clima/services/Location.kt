@@ -1,4 +1,4 @@
-package com.example.exercises.Clima
+package com.example.exercises.Clima.services
 
 import android.Manifest
 import android.annotation.SuppressLint
