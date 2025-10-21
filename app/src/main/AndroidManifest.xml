@@ -9,6 +9,9 @@
             <data android:scheme="mailto" />
         </intent>
     </queries>
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
 
     <application
         android:allowBackup="true"
@@ -20,6 +23,8 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Exercises"
         tools:targetApi="31">
+
+
         <activity
             android:name=".Ball.BallPage"
             android:exported="true"
