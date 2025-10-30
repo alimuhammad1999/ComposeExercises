@@ -8,6 +8,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -22,12 +23,13 @@ fun LoadingScreen(
 ) {
     val scope = rememberCoroutineScope()
     var isLoading by remember { mutableStateOf(true) }
+    val context = LocalContext.current
 
     // ⚡ Runs once when screen opens
     LaunchedEffect(Unit) {
         scope.launch {
             try {
-                weatherViewModel.getWeatherByLocation()
+                weatherViewModel.fetchWeatherUsingDeviceLocation(context)
                 // Navigate after successful fetch
                 navController.navigate("location") {
                     popUpTo("loading") { inclusive = true } // removes loading from back stack

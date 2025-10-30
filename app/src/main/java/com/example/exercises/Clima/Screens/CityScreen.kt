@@ -25,12 +25,15 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.exercises.Clima.WeatherViewModel
 import com.example.exercises.ui.theme.ExercisesTheme
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -64,6 +67,8 @@ fun AppBar(
 
 enum class WeatherAppScreens (val title : String) {
     City("City"),
+    Loading("Loading"),
+    Location("Weather by Location"),
 }
 
 class CityScreen : ComponentActivity() {
@@ -80,10 +85,19 @@ class CityScreen : ComponentActivity() {
                     topBar =  {AppBar(currentScreen) }
                 ) {
                     padding ->
-                    NavHost(navController, startDestination = WeatherAppScreens.City.name) {
+                    NavHost(navController, startDestination = WeatherAppScreens.Loading.name) {
                         composable(WeatherAppScreens.City.name) {
-                            CityScreen(Modifier.padding(padding)
+                            CityScreen(Modifier.padding(padding),
+                                    navController = navController
                                 , weatherViewModel = viewModel)
+                        }
+                        composable(WeatherAppScreens.Location.name) {
+                            LocationScreen( viewModel,
+                                onOpenCityScreen = {}
+                            )
+                        }
+                        composable(WeatherAppScreens.Loading.name) {
+                            LoadingScreen(navController, viewModel)
                         }
                     }
                 }
@@ -98,7 +112,7 @@ class CityScreen : ComponentActivity() {
 @Composable
 fun GreetingPreview() {
     ExercisesTheme {
-        CityScreen(Modifier, null)
+        CityScreen(Modifier, null, null)
     }
 }
 
@@ -106,10 +120,11 @@ fun GreetingPreview() {
 @Composable
 fun CityScreen(
     modifier: Modifier,
-//    navController: NavController,
+    navController: NavController?,
     weatherViewModel: WeatherViewModel? // if you're using MVVM pattern
 ) {
     var cityName by remember { mutableStateOf("") }
+    val coroutineScope = rememberCoroutineScope()
 
     Box(
         modifier = Modifier
@@ -165,8 +180,10 @@ fun CityScreen(
             // Button to Get Weather
             Button(
                 onClick = {
-                    weatherViewModel?.getWeatherByCity(cityName)
-//                    navController.popBackStack()
+                     coroutineScope.launch {
+//                         weatherViewModel?.getWeatherByCity(cityName)
+                         navController?.popBackStack()
+                     }
                 },
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2196F3)),
                 modifier = Modifier.fillMaxWidth(0.6f)
