@@ -11,7 +11,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 
-private val apiKey = "83f8e7f6ada557b6f32fd08f2354c919" // 🔒 Replace with your OpenWeather key
+//private val apiKey = "83f8e7f6ada557b6f32fd08f2354c919" // 🔒 Replace with your OpenWeather key
 
 class WeatherViewModel : ViewModel() {
     private var _weatherData = MutableStateFlow<WeatherData?>(null)

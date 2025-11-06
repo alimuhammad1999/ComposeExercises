@@ -24,13 +24,19 @@ class LocationService(private val context: Context) {
      */
     suspend fun getCurrentLocation(): Coordinates? {
         // Check permission
-        val permission = ContextCompat.checkSelfPermission(
+        val fine_permission = ContextCompat.checkSelfPermission(
             context,
             Manifest.permission.ACCESS_FINE_LOCATION
         )
+        val coarse_permission = ContextCompat.checkSelfPermission(
+            context,
+            Manifest.permission.ACCESS_COARSE_LOCATION)
 
-        if (permission != PackageManager.PERMISSION_GRANTED) {
-            // Permission not granted → return null (you’ll request it from UI)
+
+        if (fine_permission != PackageManager.PERMISSION_GRANTED &&
+            coarse_permission != PackageManager.PERMISSION_GRANTED
+        ) {
+//             Permission not granted → return null (you’ll request it from UI)
             return null
         }
 

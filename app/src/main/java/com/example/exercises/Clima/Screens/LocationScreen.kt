@@ -38,6 +38,7 @@ import androidx.compose.ui.unit.sp
 import com.example.exercises.R
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.exercises.Clima.WeatherViewModel
+import java.util.Arrays
 
 @Composable
 fun LocationScreen(
@@ -49,13 +50,25 @@ fun LocationScreen(
 
     // Permission launcher
     val launcher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.RequestPermission()
-    ) { isGranted ->
-        if (isGranted) {
-            viewModel.fetchWeatherUsingDeviceLocation(context)
-        } else {
-            Toast.makeText(context, "Location permission denied", Toast.LENGTH_SHORT).show()
-        }
+        contract = ActivityResultContracts.RequestMultiplePermissions()
+    ) { permissions ->
+        val coarse = permissions[Manifest.permission.ACCESS_COARSE_LOCATION] ?: false
+        val fine = permissions[Manifest.permission.ACCESS_FINE_LOCATION] ?: false
+        val isGranted = coarse || fine
+
+        if (isGranted) viewModel.fetchWeatherUsingDeviceLocation(context)
+        else Toast.makeText(context, "Location permission denied", Toast.LENGTH_SHORT).show()
+
+    }
+
+    // 🔹 Ask for permission automatically when screen opens
+    LaunchedEffect(Unit) {
+        launcher.launch(
+            arrayOf(
+                Manifest.permission.ACCESS_COARSE_LOCATION,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            )
+        )
     }
 
     // Background image similar to Flutter
@@ -88,7 +101,8 @@ fun LocationScreen(
             ) {
                 IconButton(
                     onClick = {
-                        launcher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
+                        launcher.launch(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION,
+                            Manifest.permission.ACCESS_COARSE_LOCATION))
                     }
                 ) {
                     Icon(
