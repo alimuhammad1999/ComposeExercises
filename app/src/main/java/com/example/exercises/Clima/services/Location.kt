@@ -35,10 +35,7 @@ class LocationService(private val context: Context) {
 
         if (fine_permission != PackageManager.PERMISSION_GRANTED &&
             coarse_permission != PackageManager.PERMISSION_GRANTED
-        ) {
-//             Permission not granted → return null (you’ll request it from UI)
-            return null
-        }
+        ) return null
 
         // Fetch last known location
         val location = fusedLocationClient.lastLocation.await()
