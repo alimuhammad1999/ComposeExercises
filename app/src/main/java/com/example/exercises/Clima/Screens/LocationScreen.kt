@@ -40,6 +40,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.exercises.Clima.WeatherViewModel
 import java.util.Arrays
 
+
+
 @Composable
 fun LocationScreen(
     viewModel: WeatherViewModel = viewModel(),
@@ -49,27 +51,26 @@ fun LocationScreen(
     val weatherData by viewModel.weatherData.collectAsState()
 
     // Permission launcher
-    val launcher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.RequestMultiplePermissions()
-    ) { permissions ->
-        val coarse = permissions[Manifest.permission.ACCESS_COARSE_LOCATION] ?: false
-        val fine = permissions[Manifest.permission.ACCESS_FINE_LOCATION] ?: false
-        val isGranted = coarse || fine
-
-        if (isGranted) viewModel.fetchWeatherUsingDeviceLocation(context)
-        else Toast.makeText(context, "Location permission denied", Toast.LENGTH_SHORT).show()
-
-    }
+//    val launcher = rememberLauncherForActivityResult(
+//        contract = ActivityResultContracts.RequestMultiplePermissions()
+//    ) { permissions ->
+//        val coarse = permissions[Manifest.permission.ACCESS_COARSE_LOCATION] ?: false
+//        val fine = permissions[Manifest.permission.ACCESS_FINE_LOCATION] ?: false
+//        val isGranted = coarse || fine
+//
+//        if (isGranted) viewModel.fetchWeatherUsingDeviceLocation(context)
+//        else Toast.makeText(context, "Location permission denied", Toast.LENGTH_SHORT).show()
+//
+//    }
 
     // 🔹 Ask for permission automatically when screen opens
-    LaunchedEffect(Unit) {
-        launcher.launch(
-            arrayOf(
-                Manifest.permission.ACCESS_COARSE_LOCATION,
-                Manifest.permission.ACCESS_FINE_LOCATION
-            )
-        )
-    }
+//    LaunchedEffect(Unit) {
+//        launcher.launch(
+//            arrayOf(
+//                Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION
+//            )
+//        )
+//    }
 
     // Background image similar to Flutter
     Box(
@@ -96,13 +97,15 @@ fun LocationScreen(
 
             // Top row with two buttons
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth().padding(top = 50.dp),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 IconButton(
                     onClick = {
-                        launcher.launch(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION,
-                            Manifest.permission.ACCESS_COARSE_LOCATION))
+//                        launcher.launch(arrayOf(
+//                            Manifest.permission.ACCESS_FINE_LOCATION,
+//                            Manifest.permission.ACCESS_COARSE_LOCATION)
+//                        )
                     }
                 ) {
                     Icon(
@@ -127,7 +130,9 @@ fun LocationScreen(
             if (weatherData != null) {
                 val temp = weatherData!!.main.temp.toInt()
                 val city = weatherData!!.name
-                val condition = weatherData!!.weather.firstOrNull()?.main ?: ""
+                val conditionid = weatherData!!.weather.firstOrNull()?.id ?: 0 //viewModel.getWeatherIcon(temp)
+                val condition = viewModel.getWeatherIcon(conditionid.toInt())
+                val message = viewModel.getMessage(temp)
 
                 Column(
                     modifier = Modifier
@@ -151,7 +156,7 @@ fun LocationScreen(
                     }
 
                     Text(
-                        text = "It's $condition in $city",
+                        text = "$message in $city",
                         color = Color.White,
                         fontSize = 24.sp,
                         textAlign = TextAlign.Right,

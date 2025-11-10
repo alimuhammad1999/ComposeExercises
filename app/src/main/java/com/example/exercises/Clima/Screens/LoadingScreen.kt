@@ -1,5 +1,9 @@
 package com.example.exercises.Clima.Screens
 
+import android.Manifest
+import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.CircularProgressIndicator
@@ -19,24 +23,43 @@ import kotlinx.coroutines.launch
 @Composable
 fun LoadingScreen(
     navController: NavController,
-    weatherViewModel: WeatherViewModel
+    viewModel: WeatherViewModel
 ) {
-    val scope = rememberCoroutineScope()
     var isLoading by remember { mutableStateOf(true) }
     val context = LocalContext.current
+    val weatherData by viewModel.weatherData.collectAsState()
+    val error by viewModel.error.collectAsState()
+
+    // Permission launcher
+    val launcher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestMultiplePermissions()
+    ) { permissions ->
+        val coarse = permissions[Manifest.permission.ACCESS_COARSE_LOCATION] ?: false
+        val fine = permissions[Manifest.permission.ACCESS_FINE_LOCATION] ?: false
+        val isGranted = coarse || fine
+
+        if (isGranted) viewModel.fetchWeatherUsingDeviceLocation(context)
+        else Toast.makeText(context, "Location permission denied", Toast.LENGTH_SHORT).show()
+
+    }
 
     // ⚡ Runs once when screen opens
     LaunchedEffect(Unit) {
-        scope.launch {
-            try {
-                weatherViewModel.fetchWeatherUsingDeviceLocation(context)
-                // Navigate after successful fetch
-                navController.navigate("location") {
-                    popUpTo("loading") { inclusive = true } // removes loading from back stack
+        launcher.launch(
+            arrayOf(
+                Manifest.permission.ACCESS_COARSE_LOCATION,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            )
+        )
+    }
+
+    // 🚀 Observe data and navigate once it's available
+    LaunchedEffect(weatherData) {
+        if (weatherData != null) {
+            navController.navigate(WeatherAppScreens.Location.name) {
+                popUpTo("Loading") {
+                    inclusive = true
                 }
-            } catch (e: Exception) {
-                e.printStackTrace()
-                isLoading = false
             }
         }
     }
