@@ -1,6 +1,7 @@
 package com.example.exercises.Clima.Screens
 
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 
@@ -19,8 +20,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -33,6 +36,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.exercises.Clima.WeatherViewModel
 import com.example.exercises.ui.theme.ExercisesTheme
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -89,11 +93,13 @@ class CityScreen : ComponentActivity() {
                         composable(WeatherAppScreens.City.name) {
                             CityScreen(Modifier.padding(padding),
                                     navController = navController
-                                , weatherViewModel = viewModel)
+                                , viewModel = viewModel)
                         }
                         composable(WeatherAppScreens.Location.name) {
                             LocationScreen( viewModel,
-                                onOpenCityScreen = {}
+                                onOpenCityScreen = {
+                                    navController.navigate(WeatherAppScreens.City.name)
+                                }
                             )
                         }
                         composable(WeatherAppScreens.Loading.name) {
@@ -121,15 +127,36 @@ fun GreetingPreview() {
 fun CityScreen(
     modifier: Modifier,
     navController: NavController?,
-    weatherViewModel: WeatherViewModel? // if you're using MVVM pattern
+    viewModel: WeatherViewModel? // if you're using MVVM pattern
 ) {
     var cityName by remember { mutableStateOf("") }
     val coroutineScope = rememberCoroutineScope()
+    val context = LocalContext.current
+    var isLoading by remember { mutableStateOf(false) }
 
     Box(
         modifier = Modifier
             .fillMaxSize()
     ) {
+        if (isLoading) {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                CircularProgressIndicator(
+                    color = Color.White,
+                    strokeWidth = 4.dp,
+                    modifier = Modifier.size(60.dp)
+                )
+                Spacer(modifier = Modifier.height(20.dp))
+                Text(
+                    text = "Fetching Weather...",
+                    color = Color.White,
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Medium
+                )
+            }
+        }
         // Background Image
         Image(
             painter = painterResource(id =  R.drawable.city_background),
@@ -179,12 +206,29 @@ fun CityScreen(
 
             // Button to Get Weather
             Button(
+//                onClick = {
+//                     coroutineScope.launch {
+//                         weatherViewModel?.fetchWeatherByCity(context, cityName)
+//                         navController?.popBackStack()
+//                     }
+//                },
                 onClick = {
-                     coroutineScope.launch {
-//                         weatherViewModel?.getWeatherByCity(cityName)
-                         navController?.popBackStack()
-                     }
+                    if (cityName.isNotBlank()) {
+                        coroutineScope.launch {
+                            isLoading = true
+                            val result = viewModel?.fetchWeatherByCity(context, cityName)
+                            isLoading = false
+
+                            if (result != null) {
+                                // Optionally store result in shared state if needed
+                                navController?.popBackStack()
+                            } else {
+                                Toast.makeText(context, "Failed to fetch weather", Toast.LENGTH_SHORT).show()
+                            }
+                        }
+                    }
                 },
+                enabled = !isLoading,
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2196F3)),
                 modifier = Modifier.fillMaxWidth(0.6f)
             ) {

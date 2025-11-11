@@ -22,19 +22,12 @@ class WeatherViewModel : ViewModel() {
     private val _error = MutableStateFlow<String?>(null)
     val error = _error.asStateFlow()
 
-    fun fetchWeatherByCity(context: Context, city: String) {
+    suspend fun fetchWeatherByCity(context: Context, city: String) {
         val repo = WeatherRepository(context)
         viewModelScope.launch {
             _weatherData.value = repo.getWeatherByCity(city)
         }
     }
-
-    /*fun fetchWeatherUsingDeviceLocation(context: Context) {
-        val repo = WeatherRepository(context)
-        viewModelScope.launch {
-            _weatherData.value = repo.getWeatherByLocation()
-        }
-    }*/
 
     fun fetchWeatherUsingDeviceLocation(context: Context) {
         val repo = WeatherRepository(context)
