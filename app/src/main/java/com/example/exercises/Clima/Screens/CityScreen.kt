@@ -35,8 +35,6 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.exercises.Clima.WeatherViewModel
 import com.example.exercises.ui.theme.ExercisesTheme
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -91,8 +89,8 @@ class CityScreen : ComponentActivity() {
                     padding ->
                     NavHost(navController, startDestination = WeatherAppScreens.Loading.name) {
                         composable(WeatherAppScreens.City.name) {
-                            CityScreen(Modifier.padding(padding),
-                                    navController = navController
+                            CityScreen(
+                                navController = navController
                                 , viewModel = viewModel)
                         }
                         composable(WeatherAppScreens.Location.name) {
@@ -118,14 +116,13 @@ class CityScreen : ComponentActivity() {
 @Composable
 fun GreetingPreview() {
     ExercisesTheme {
-        CityScreen(Modifier, null, null)
+        CityScreen(null, null)
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CityScreen(
-    modifier: Modifier,
     navController: NavController?,
     viewModel: WeatherViewModel? // if you're using MVVM pattern
 ) {
@@ -218,13 +215,10 @@ fun CityScreen(
                             isLoading = true
                             val result = viewModel?.fetchWeatherByCity(context, cityName)
                             isLoading = false
-
-                            if (result != null) {
-                                // Optionally store result in shared state if needed
+                            if(viewModel?.error != null)
+                                Toast.makeText(context, viewModel.error.value, Toast.LENGTH_SHORT).show()
+                            else
                                 navController?.popBackStack()
-                            } else {
-                                Toast.makeText(context, "Failed to fetch weather", Toast.LENGTH_SHORT).show()
-                            }
                         }
                     }
                 },

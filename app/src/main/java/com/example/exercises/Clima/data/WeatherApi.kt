@@ -1,6 +1,7 @@
 package com.example.exercises.Clima.data
 
 import com.example.exercises.Clima.data.model.WeatherData
+import retrofit2.Response
 import retrofit2.http.GET
 import retrofit2.http.Query
 
@@ -10,7 +11,7 @@ interface WeatherApi {
         @Query("q") city: String,
         @Query("appid") apiKey: String,
         @Query("units") units: String = "metric"
-    ): WeatherData
+    ): Response<WeatherData>
 
     @GET("data/2.5/weather")
     suspend fun getWeatherByLocation(

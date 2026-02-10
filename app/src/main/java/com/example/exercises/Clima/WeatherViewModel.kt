@@ -25,7 +25,12 @@ class WeatherViewModel : ViewModel() {
     suspend fun fetchWeatherByCity(context: Context, city: String) {
         val repo = WeatherRepository(context)
         viewModelScope.launch {
-            _weatherData.value = repo.getWeatherByCity(city)
+            _error.value = null
+            val response = repo.getWeatherByCity(city)
+            if (response.isSuccessful) _weatherData.value = response.body()
+            else if(response.code() == 404) _error.value = "City not found"
+            else _error.value = response.message()
+
         }
     }
 
